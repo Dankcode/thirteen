@@ -15,7 +15,6 @@ const Join = () => {
                 <CreateNewGame />
                 </div>
                 
-            <button className="button" type="submit">Generate Link</button>
             
             </div>
         </div>
