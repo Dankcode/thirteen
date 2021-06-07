@@ -2,23 +2,36 @@ import React, {useState} from 'react';
 import { Link } from 'react-router-dom';
 import CreateNewGame from './CreateNewGame';
 
-const Join = () => {
-    const [name, setName] = useState('');
-    const [room, setRoom] = useState('');
-   
 
+class Join extends React.Component {
+    constructor(props) {
+        super(props)
+    this.state = {
+        buttonPress: false
+    };
+
+
+}
+/*
+buttonPress = () => {
+    this.setState({
+        buttonPress: true
+    })
+}
+*/
+render(){
     return (
         <div className="JoinOuterContainer">
             <div className="JoinInnerContainer">
                 <h1 className="heading">Create</h1>
-                <div><input placeholder="Room Name" className="joinInput" type="text"></input>
+                <div>
+             
                 <CreateNewGame />
                 </div>
-                
-            
             </div>
         </div>
     )
+}
 };
 
 export default Join;
