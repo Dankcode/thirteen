@@ -1,6 +1,6 @@
 import React from 'react';
-import CreateNewGame from '../Join/CreateNewGame';
-const socket  = require('../connections/socket').socket
+import CreateNewGame from '../../Join/CreateNewGame';
+const socket  = require('../../connections/socket').socket
 
 
 
@@ -11,10 +11,53 @@ pass turn button works
 
 
 use State Class to generate DECK and then
-
-
 */
 
+const SUITS = ["S", "C", "D", "H"]
+const RANKS = ["2", "3","4","5","6","7","8","9","10","J","Q","K","A"] 
+
+class Deckgen {
+    constructor(cards = createDeck()) {
+        this.cards = cards
+    }
+
+    get numberOfCards() {
+        return this.cards.length
+    }
+
+    shuffle() {
+        for (let i = this.numberOfCards - 1; i > 0; i--) {
+            const newIndex = Math.floor(Math.random() * (i + 1))
+            const oldValue = this.cards[newIndex]
+            this.cards[newIndex] = this.cards[i]
+            this.cards[i] = oldValue
+        }
+    }
+}
+
+class Card {
+    constructor(suit,rank){
+        this.suit = suit
+        this.rank = rank
+    }
+}
+
+function createDeck() {
+    return SUITS.flatMap(suit => {
+        return RANKS.map(rank => {
+            return new Card(suit, rank);
+        })
+    })
+    }
+
+const deck = new Deckgen();
+deck.shuffle()
+
+export default deck;
+
+
+
+/*
 const SUITS = ["S", "C", "D", "H"]
 const RANKS = ["2", "3","4","5","6","7","8","9","10","J","Q","K","A"] 
 
@@ -104,3 +147,5 @@ render(){
 
 
 export default Deck;
+
+*/

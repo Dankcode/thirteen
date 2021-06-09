@@ -2,6 +2,9 @@ import React, {useState} from 'react';
 import { Link } from 'react-router-dom';
 import CreateNewGame from './CreateNewGame';
 
+/*
+CONTAINS the INTRUCTIONS FOR CREATING ROOM
+*/
 
 class Join extends React.Component {
     constructor(props) {
