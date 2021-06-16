@@ -24,9 +24,12 @@ class Game extends React.Component {
 
     state = {
         newGame: false,
+        buttonTest: false,
+        firstCard: false,
         p1Hand: [],
-        p1Rend: '',
-        buttonTest: false
+        selectArr: [],
+        removeCard: [],
+        playedCard: []
     }
    
     componentDidMount() {
@@ -44,27 +47,11 @@ class Game extends React.Component {
         console.log(player2Deck)
         console.log(player3Deck)
         console.log(player4Deck)
-
-        // render cards 
-        // make loop thru deck and replace S with of spades
-        // create a new obj for the render code and .push it
-        
-/*
-        for (var i = player1Deck.length - 1; i >= 0; i--) {
-            var j = Object.values(player1Deck[i])
-            console.log(j[0])
-            player1Deck.push(player1Deck.flatMap[0], player1Deck.flatMap[1])
-            }   
-*/    
-console.log(player1Deck[0])
-
+// need to order the deck eventually 
 this.setState({
     p1Hand : player1Deck
 })
-            
-        
-  
-        
+   
 // create StartingCard that searches for 3 of Spades
 //extract card from Searching player decks that player 2nd player becomes first to play 
 // const a first turn 
@@ -78,30 +65,50 @@ socket.emit('initGameState', {
    // currentNumber: playedCardsPile[0].charAt(0),
     //playedCardsPile: [...playedCardsPile],
    // drawCardPile: [...drawCardPile]
-})
-    }
+})}
     
 renderCard = () => {
-const card = this.state.p1Hand
-
-
-
-console.log(card)
-
 this.setState({
     buttonTest: true,
-})         
+})}      
 
-}      
-/*
-const cardGen = card.forEach(function(x, i) {
-    return <img alt = '' src ={require(`./Deck/assets/Faces/${x}.png`).default}/>
-});
-*/
+selectCard = (selected_card) => {
+    // will have to check if cardplay is Legal
+    this.state.selectArr.push(selected_card);
+    const removalIndex = this.state.selectArr.indexOf(selected_card);
+    console.log(selected_card)
+    //console.log(this.state.selectArr)
+    this.setState({
+        removeCard: removalIndex
+    })
+    //console.log(this.state.removeCard)
+}
 
-        // socket.on INITIAL STATE
-        //socket.on UPDATE STATE
-        
+playButton = () => {
+    //filter out duplicates clicked and puts them on board
+    //remove from player's hand
+    let uniqueCards =  [...new Set(this.state.selectArr)]
+    
+    //console.log(uniqueCards)
+    
+    this.setState({
+        playedCard: uniqueCards,
+        firstCard: true
+    })
+}
+
+removeHand = () => {
+    var i;
+    for (i = 0; i < this.state.p1Hand.length; i ++) {
+        // need double loop to grab value
+      if (this.state.p1Hand[i] === this.state.selectArr) {
+        this.state.p1Hand.splice(i, 1);
+      } else {
+        ++i;
+      }
+    }
+    console.log(this.state.p1Hand)
+  }
 
     
 
@@ -121,11 +128,10 @@ render() {
     return(
         <div>
             <h2>
-            <React.Fragment>
-                {this.state.buttonTest ?
-                <div>
-                
-                {this.state.p1Hand.map((item, i) => (
+                <div className='Square'>
+            
+                        <div>
+                {this.state.playedCard.map((item, i) => (
                                 <img
                                     alt = ''
                                     key={i}
@@ -134,13 +140,31 @@ render() {
                                     />
                 ))}
                 </div>
+             
+                </div>
+            <React.Fragment>
+                {this.state.buttonTest ?
+                <div>
+                    <button onClick={() => {this.playButton(); this.removeHand();}}> PLAY SELECTED </button>
+                <div>
+                {this.state.p1Hand.map((item, i) => (
+                                <img
+                                    alt = ''
+                                    key={i}
+                                    className='Card'
+                                    src={require(`./Deck/assets/Faces/${item}.png`).default}
+                                    onClick={() => this.selectCard(item)}
+                                    />
+                ))}
+                </div>
+                </div>
                 :             
                 <div>
                     hi
                 </div>
                 }
             </React.Fragment>
-            <button onClick={this.renderCard}> add card </button>
+            <button onClick={() => this.renderCard()}> add card </button>
             </h2>
         </div>
     )
@@ -166,7 +190,6 @@ const GameRoom = (props) => {
         <div>
             <h1>
             <button onClick={event =>  window.location.href='/'}>BACK HOME</button>
-            
             <Game />
             </h1>
         </div>
