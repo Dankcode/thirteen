@@ -11,6 +11,9 @@
 .Card:active {
   outline: 1px solid red;
 }
+#selected {
+  background-color: red;
+}
 
 .Square {
   margin: 20px;

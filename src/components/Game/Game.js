@@ -36,8 +36,6 @@ class Game extends React.Component {
         
         const shuffledDeck = shuffleArray(deck)
 
-        console.log(shuffledDeck)
-
         const player1Deck = shuffledDeck.splice(0, 13)
         const player2Deck = shuffledDeck.splice(0, 13)
         const player3Deck = shuffledDeck.splice(0, 13)
@@ -47,6 +45,9 @@ class Game extends React.Component {
         console.log(player2Deck)
         console.log(player3Deck)
         console.log(player4Deck)
+
+//NEED update win conditions
+
 // need to order the deck eventually 
 this.setState({
     p1Hand : player1Deck
@@ -72,44 +73,84 @@ this.setState({
     buttonTest: true,
 })}      
 
+/*
+selectCard = (selected_card) => {
+    // will have to check if cardplay is Legal
+    if (!this.state.selectArr.includes(selected_card)) {
+        this.state.selectArr.push(selected_card);
+        console.log(selected_card)
+    } else {
+        var j;
+            for (j = 0; j < this.state.selectArr.length;j  ++)
+                if (selected_card === this.state.selectArr[j]) {
+                    this.state.selectArr.splice(j, 1);
+                }
+    }
+}
+*/
 selectCard = (selected_card) => {
     // will have to check if cardplay is Legal
     this.state.selectArr.push(selected_card);
-    const removalIndex = this.state.selectArr.indexOf(selected_card);
-    console.log(selected_card)
-    //console.log(this.state.selectArr)
+        console.log(selected_card)
+    
+        var i;
+        for (i = 0; i < this.state.p1Hand.length; i ++) {
+            var j;
+                for (j = 0; j < this.state.selectArr.length;j  ++)
+                    if (this.state.p1Hand[i] === this.state.selectArr[j]) {
+                        this.state.p1Hand.splice(i, 1);
+          }
+        }
+    const selectedCard = this.state.selectArr
     this.setState({
-        removeCard: removalIndex
+        selectArr: selectedCard
     })
-    //console.log(this.state.removeCard)
+}
+
+deselectCard = (selected_card) => {
+    this.state.p1Hand.push(selected_card);
+        console.log(selected_card)
+    
+        var i;
+        for (i = 0; i < this.state.selectArr.length; i ++) {
+            var j;
+                for (j = 0; j < this.state.p1Hand.length;j  ++)
+                    if (this.state.selectArr[i] === this.state.p1Hand[j]) {
+                        this.state.selectArr.splice(i, 1);
+          }
+        }
+    const selectedCard = this.state.p1Hand
+    this.setState({
+        p1Hand: selectedCard
+    })
 }
 
 playButton = () => {
     //filter out duplicates clicked and puts them on board
     //remove from player's hand
-    let uniqueCards =  [...new Set(this.state.selectArr)]
-    
-    //console.log(uniqueCards)
+    let uniqueCards =  this.state.selectArr.splice(0, 13)
+   
+    console.log(this.state.playedCard)
     
     this.setState({
         playedCard: uniqueCards,
-        firstCard: true
     })
 }
-
+/*
 removeHand = () => {
     var i;
     for (i = 0; i < this.state.p1Hand.length; i ++) {
-        // need double loop to grab value
-      if (this.state.p1Hand[i] === this.state.selectArr) {
-        this.state.p1Hand.splice(i, 1);
-      } else {
-        ++i;
+        var j;
+            for (j = 0; j < this.state.selectArr.length;j  ++)
+                if (this.state.p1Hand[i] === this.state.selectArr[j]) {
+                    this.state.p1Hand.splice(i, 1);
       }
     }
-    console.log(this.state.p1Hand)
-  }
 
+    console.log(this.state.p1Hand)
+    console.log(this.state.selectArr)
+  }
+*/
     
 
     //last cards played
@@ -145,8 +186,19 @@ render() {
             <React.Fragment>
                 {this.state.buttonTest ?
                 <div>
-                    <button onClick={() => {this.playButton(); this.removeHand();}}> PLAY SELECTED </button>
+                    <button onClick={() => this.playButton()}> PLAY SELECTED </button>
                 <div>
+                    <div>
+                {this.state.selectArr.map((item, i) => (
+                                <img
+                                    alt = ''
+                                    key={i}
+                                    className='Card'
+                                    src={require(`./Deck/assets/Faces/${item}.png`).default}
+                                    onClick={() => this.deselectCard(item)}
+                                    />
+                ))}
+                </div>
                 {this.state.p1Hand.map((item, i) => (
                                 <img
                                     alt = ''
@@ -169,7 +221,6 @@ render() {
         </div>
     )
     }
-
 }
 // array not being shuffled also found in cards: Array which needs to be fixed
 
