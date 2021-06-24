@@ -3,6 +3,7 @@ import deck from './Deck/Deck.js';
 import CreateNewGame from '../Join/CreateNewGame';
 import { Redirect, useParams } from 'react-router-dom';
 import shuffleArray from './Deck/Shuffle';
+import sortCards from './Deck/Sort.js';
 import './Game.css';
 import reactDom from 'react-dom';
 const socket  = require('../connections/socket').socket
@@ -47,44 +48,21 @@ class Game extends React.Component {
         const player3Deck = shuffledDeck.splice(0, 13)
         const player4Deck = shuffledDeck.splice(0, 13)
 
-        player1Deck.sort()
-
         console.log(player1Deck)
         console.log(player2Deck)
         console.log(player3Deck)
         console.log(player4Deck)
-        /*player1Deck.sort(function(a, b) {
-            const suit = player1Deck.charAr(0)
-            const rank = player1Deck.charAr(1)
-            var j;
-                for (j = 0; j < player1Deck.length;j  ++){
-                switch (suit)
-                {
-                default: 
-                return null;
-                case 's':
-                return 10;
-                case 'c':
-                return 20;
-                case 'd':
-                return 30;
-                case 'h':
-                return 40; 
-                }
-            }
-                return null
+
+        
+            
                 
-                })
-*/
+
 this.setState({
     p1Hand : player1Deck,
     p2Hand : player2Deck,
     p3Hand : player3Deck,
     p4Hand : player4Deck,
 }) 
-
-
-// need to order the deck eventually 
 
 socket.emit('initGameState', {
     newGame: false,
@@ -314,12 +292,17 @@ this.state.pHand.push(quit)
         player: ''
     })
 }
+
+// GAME LOGIC GOES HERE
+// =====================================
+
 selectCard = (selected_card) => {
-    // will have to check if cardplay is Legal
     this.state.selectArr.push(selected_card);
         console.log(selected_card)
+    // LEGAL PLAYS GO HERE
+    //disallow 
     
-        var i;
+        var i; //this loop moves hand to Selected Array
         for (i = 0; i < this.state.pHand.length; i ++) {
             var j;
                 for (j = 0; j < this.state.selectArr.length;j  ++)
@@ -327,6 +310,7 @@ selectCard = (selected_card) => {
                         this.state.pHand.splice(i, 1);
           }
         }
+        
     const selectedCard = this.state.selectArr
     this.setState({
         selectArr: selectedCard
@@ -357,7 +341,6 @@ playButton = () => {
     let uniqueCards =  this.state.selectArr.splice(0, 13)
    
     console.log(this.state.playedCard)
-    
     this.setState({
         playedCard: uniqueCards,
     })
