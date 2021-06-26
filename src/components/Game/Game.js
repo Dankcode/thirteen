@@ -74,7 +74,7 @@ socket.emit('initGameState', {
 })}
     
 p1Seat = () => {
-    const playerHand = this.state.p1Hand
+    const playerHand = this.state.p1Hand.sort()
 this.setState({
     pHand: playerHand,
     player: 'player1'
@@ -286,11 +286,12 @@ otherDeck = () => {
     }
 }
 changeSeat = () => {
-    const quit = this.state.selectArr.splice(0, 13)
+    if (this.state.selectArr.length > 1) {
+        const quit = this.state.selectArr.splice(0, 13)
 this.state.pHand.push(quit)
     this.setState({
         player: ''
-    })
+    })}
 }
 
 // GAME LOGIC GOES HERE
@@ -338,7 +339,7 @@ deselectCard = (selected_card) => {
 playButton = () => {
     //filter out duplicates clicked and puts them on board
     //remove from player's hand
-    let uniqueCards =  this.state.selectArr.splice(0, 13)
+    let uniqueCards =  this.state.selectArr.splice(0, 13).sort()
    
     console.log(this.state.playedCard)
     this.setState({
