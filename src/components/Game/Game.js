@@ -3,9 +3,9 @@ import deck from './Deck/Deck.js';
 import CreateNewGame from '../Join/CreateNewGame';
 import { Redirect, useParams } from 'react-router-dom';
 import shuffleArray from './Deck/Shuffle';
-import sortCards from './Deck/Sort.js';
 import './Game.css';
 import reactDom from 'react-dom';
+import gameLogic from './Gamelogic.js';
 const socket  = require('../connections/socket').socket
 
 
@@ -52,11 +52,7 @@ class Game extends React.Component {
         console.log(player2Deck)
         console.log(player3Deck)
         console.log(player4Deck)
-
         
-            
-                
-
 this.setState({
     p1Hand : player1Deck,
     p2Hand : player2Deck,
@@ -296,6 +292,14 @@ this.state.pHand.push(quit)
 
 // GAME LOGIC GOES HERE
 // =====================================
+checkCard = (selected_card) => {
+    var selectfunction
+    gameLogic(selected_card, this.state.selectArr,  this.state.playedCard, this.state.pHand, true)
+    if (gameLogic(selected_card, this.state.selectArr,  this.state.playedCard, this.state.pHand, true) === 'allow' ) {
+        this.selectCard(selected_card)
+    }
+}
+
 
 selectCard = (selected_card) => {
     this.state.selectArr.push(selected_card);
@@ -310,9 +314,8 @@ selectCard = (selected_card) => {
                     if (this.state.pHand[i] === this.state.selectArr[j]) {
                         this.state.pHand.splice(i, 1);
           }
-        }
-        
-    const selectedCard = this.state.selectArr
+        }  
+    const selectedCard = this.state.selectArr.sort()
     this.setState({
         selectArr: selectedCard
     })
@@ -330,13 +333,13 @@ deselectCard = (selected_card) => {
                         this.state.selectArr.splice(i, 1);
           }
         }
-    const selectedCard = this.state.pHand
+    const selectedCard = this.state.pHand.sort()
     this.setState({
         pHand: selectedCard
     })
 }
 
-playButton = () => {
+playFunction = () => {
     //filter out duplicates clicked and puts them on board
     //remove from player's hand
     let uniqueCards =  this.state.selectArr.splice(0, 13).sort()
@@ -345,6 +348,30 @@ playButton = () => {
     this.setState({
         playedCard: uniqueCards,
     })
+}
+playButton = () => {
+    if (this.state.selectArr.length === this.state.playedCard.length) {
+    return (
+        <div>
+            <button onClick= {() => this.playFunction()}>PLAY CARDS</button>
+        </div>
+    )
+    }
+    if (this.state.playedCard.length === 0) {
+    return (
+        <div>
+            <button onClick= {() => this.playFunction()}>PLAY CARDS</button>
+        </div>
+    )    
+    }
+    // needs to check if played cards are legal 
+}
+passButton = () => {
+    return (
+        <div>
+            <button>PASS</button>
+        </div>
+    )
 }
 
 render() {
@@ -371,7 +398,7 @@ render() {
             <React.Fragment>
                 {this.state.player === 'player1' || this.state.player ==='player2' || this.state.player ==='player3' || this.state.player ==='player4'?
                 <div>
-                    <button onClick={() => this.playButton()}> PLAY SELECTED </button>
+                    {this.passButton()}{this.playButton()}
                 <div>
                     <div>
                 {this.state.selectArr.map((item, i) => (
@@ -390,7 +417,7 @@ render() {
                                     key={i}
                                     className='Card'
                                     src={require(`./Deck/assets/Faces/${item}.png`).default}
-                                    onClick={() => this.selectCard(item)}
+                                    onClick={() => this.checkCard(item)}
                                     />
                 ))}
                 
