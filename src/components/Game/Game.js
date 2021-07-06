@@ -6,6 +6,7 @@ import shuffleArray from './Deck/Shuffle';
 import './Game.css';
 import reactDom from 'react-dom';
 import gameLogic from './Gamelogic.js';
+import bombCheck from './Bomb.js';
 const socket  = require('../connections/socket').socket
 
 
@@ -43,7 +44,8 @@ class Game extends React.Component {
         
         const shuffledDeck = shuffleArray(deck)
     
-        const player1Deck = shuffledDeck.splice(0, 13)
+        //const player1Deck = shuffledDeck.splice(0, 13)
+        const player1Deck = ['3a','3d','4a', '4d', '5a', '5d', '6a', '6d']
         const player2Deck = shuffledDeck.splice(0, 13)
         const player3Deck = shuffledDeck.splice(0, 13)
         const player4Deck = shuffledDeck.splice(0, 13)
@@ -70,7 +72,8 @@ socket.emit('initGameState', {
 })}
     
 p1Seat = () => {
-    const playerHand = this.state.p1Hand.sort()
+    const playerHand = this.state.p1Hand.sort();
+    bombCheck(playerHand)
 this.setState({
     pHand: playerHand,
     player: 'player1'
@@ -306,7 +309,6 @@ selectCard = (selected_card) => {
         console.log(selected_card)
     // LEGAL PLAYS GO HERE
     //disallow 
-    
         var i; //this loop moves hand to Selected Array
         for (i = 0; i < this.state.pHand.length; i ++) {
             var j;

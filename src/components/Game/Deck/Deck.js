@@ -54,10 +54,10 @@ const deck = new Deckgen();
 deck.shuffle()
 */
 const deck = [
-  "ae", "af", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "aa", "ab", "ac", "ad",
-  "he", "hf", "h3", "h4", "h5", "h6", "h7", "h8", "h9", "ha", "hb", "hc", "hd",
-  "ce", "cf", "c3", "c4", "c5", "c6", "c7", "c8", "c9", "ca", "cb", "cc", "cd",
-  "de", "df", "d3", "d4", "d5", "d6", "d7", "d8", "d9", "da", "db", "dc", "dd",
+  "ea", "fa", "3a", "4a", "5a", "6a", "7a", "8a", "9a", "aa", "ba", "ca", "da",
+  "eh", "fh", "3h", "4h", "5h", "6h", "7h", "8h", "9h", "ah", "bh", "ch", "dh",
+  "ec", "fc", "3c", "4c", "5c", "6c", "7c", "8c", "9c", "ac", "bc", "cc", "dc",
+  "ed", "fd", "3d", "4d", "5d", "6d", "7d", "8d", "9d", "ad", "bd", "cd", "dd",
   ];
 export default deck;
 
