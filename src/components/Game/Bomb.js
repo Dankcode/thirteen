@@ -18,11 +18,64 @@ let results = [];
 }
 
 const dupeArr = findDupes(rankHand)
-console.log(dupeArr)
+
+const findBomb = (arr) => {
 var j;
-for (j = 0; j < dupeArr.length; j ++) {
-    if (dupeArr[j + 1] - dupeArr[j] === 1 && dupeArr[j + 2] - dupeArr[j] === 2 && dupeArr[j + 3] - dupeArr[j] === 3 ) {
-        return console.log('dank')
+for (j = 0; j < arr.length; j++) {
+    if (arr[j + 3] - arr[j] === 3 ) {
+        return 'nuclear';
+    } else {
+        switch (arr[j]) {
+        default:
+            return;
+        case '7':
+            if (arr[j + 3] === 'a') {
+                return 'nuclear';
+            }
+            break;
+        case '8':
+            if (arr[j + 3] === 'b') {
+                return 'nuclear';
+            }
+            break;        
+        case '':
+            if (arr[j + 3] === 'c') {
+                return 'nuclear';
+            }
+            break;    
+        case 'a':
+            if (arr[j + 3] === 'd') {
+                return 'nuclear';
+            }
+            break;
+        case 'b':
+            if (arr[j + 3] === 'e') {
+                return 'nuclear';
+            }
+            break;
+        case 'c':
+            if (arr[j + 3] === 'f') {
+                return 'nuclear';
+            }
+            break;
+        }
+    }
 }
 }
+function mineSweep (arr) {
+if (dupeArr.length >= 4)   { 
+    if(arr === 'nuclear') {
+        return 'defCon'
+    } else {
+        dupeArr.shift()
+        mineSweep(findBomb(dupeArr));
+    }
+}
+}
+
+mineSweep(findBomb(dupeArr))
+dupeArr.splice(4)
+console.log(dupeArr)
+
+return dupeArr;
 }

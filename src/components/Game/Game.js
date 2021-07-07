@@ -45,7 +45,7 @@ class Game extends React.Component {
         const shuffledDeck = shuffleArray(deck)
     
         //const player1Deck = shuffledDeck.splice(0, 13)
-        const player1Deck = ['3a','3d','4a', '4d', '5a', '5d', '6a', '6d']
+        const player1Deck = ['ba','bd','ca', 'cd', 'da', 'dd', 'ea', 'ed','fa','fd', '3a','3d','4a','4d']
         const player2Deck = shuffledDeck.splice(0, 13)
         const player3Deck = shuffledDeck.splice(0, 13)
         const player4Deck = shuffledDeck.splice(0, 13)

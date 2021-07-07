@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import deck from './Deck/Deck.js';
+import bombCheck from './Bomb.js';
 const socket  = require('../connections/socket').socket
 
 
@@ -264,22 +265,9 @@ if (pairs > 4) {
         }
     }
 }
-// bomb
-/*
-        if(pairs === 1) {
+// BOMBS
+//might need a bomb detection system that scans thru the hand for possible bomb plays
 
-            // if selected cards surpass 2 then it would just replace it 
-            if (selectedPairs > 2) {
-                var i;
-                for (i = 0; i < selectedArr.length; i ++) {
-                    var j;
-                        for (j = 0; j < this.state.pHand.length;j  ++)
-                            if (selectedArr[i] === this.state.pHand[j]) {
-                                selectedArr.splice(i, 1);
-                  }
-                }
-            }
-        }
-        */
+
 }
 }
