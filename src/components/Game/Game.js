@@ -29,6 +29,7 @@ class Game extends React.Component {
         newGame: false,
         render: false,
         firstCard: false,
+        bombTrue: false,
         player: '',
         winners: [],
         p1Hand: [],
@@ -37,7 +38,8 @@ class Game extends React.Component {
         p4Hand: [],
         pHand: [],
         selectArr: [],
-        playedCard: []
+        playedCard: [],
+        bombArr: [],
     }
    
     componentDidMount(props) {
@@ -73,10 +75,15 @@ socket.emit('initGameState', {
     
 p1Seat = () => {
     const playerHand = this.state.p1Hand.sort();
-    bombCheck(playerHand)
+    if (bombCheck(this.state.pHand).length >= 4) {
+        this.setState({
+            bombTrue: true,
+            bombArr: bombCheck(this.state.pHand)
+        })
+    }
 this.setState({
     pHand: playerHand,
-    player: 'player1'
+    player: 'player1',
 })}      
 p2Seat = () => {
     const playerHand = this.state.p2Hand
@@ -296,13 +303,10 @@ this.state.pHand.push(quit)
 // GAME LOGIC GOES HERE
 // =====================================
 checkCard = (selected_card) => {
-    var selectfunction
-    gameLogic(selected_card, this.state.selectArr,  this.state.playedCard, this.state.pHand, true)
-    if (gameLogic(selected_card, this.state.selectArr,  this.state.playedCard, this.state.pHand, true) === 'allow' ) {
+    if (gameLogic(selected_card, this.state.selectArr,  this.state.playedCard, this.state.pHand, this.state.bombArr, this.state.bombCheck, true) === 'allow' ) {
         this.selectCard(selected_card)
     }
 }
-
 
 selectCard = (selected_card) => {
     this.state.selectArr.push(selected_card);
@@ -352,6 +356,7 @@ playFunction = () => {
     })
 }
 playButton = () => {
+    // checks if the card can be played specifically the bomb
     if (this.state.selectArr.length === this.state.playedCard.length) {
     return (
         <div>
@@ -366,7 +371,15 @@ playButton = () => {
         </div>
     )    
     }
-    // needs to check if played cards are legal 
+    if (this.state.bombTrue === true && this.state.selectArr.length === 8) {
+        if (bombCheck(this.state.selectArr).length === 4) {
+            return (
+        <div>
+            <button onClick= {() => this.playFunction()}>PLAY CARDS</button>
+        </div>
+            )   
+        }    
+    }
 }
 passButton = () => {
     return (

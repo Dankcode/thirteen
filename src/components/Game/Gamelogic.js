@@ -11,7 +11,7 @@ if allowed or not
 bsically every possible play avaialble
 ============
 */
-export default function gameLogic (selectedCard, selectedArr,  playedArr, playerHand, isTurn) {
+export default function gameLogic (selectedCard, selectedArr,  playedArr, playerHand, bombArr, bombCheck, isTurn) {
     const pairs = playedArr.length 
     const selectedPairs = selectedArr.length
     const suitPlayed = playedArr.map(i => i.charAt(1))
@@ -95,6 +95,7 @@ if (isTurn === true) {
 if (pairs < 1) {
     return 'allow'
 }
+
 // SINGLES 
 if (pairs === 1) {
         // NUMBER CARDS 
@@ -265,9 +266,30 @@ if (pairs > 4) {
         }
     }
 }
+    
 // BOMBS
-//might need a bomb detection system that scans thru the hand for possible bomb plays
-
+else {
+    for (let i = 0; i < bombArr.length; i++) {
+if (rank === bombArr[i]  ) {
+    if (selectedPairs === 0) {
+        return 'allow'
+    }
+    else {
+        if (selectedPairs % 2 !== 0) {
+            if (rank === rankSelected[rankSelected.length -1]) {
+                return 'allow'
+        }
+    }
+        if (selectedPairs % 2 === 0) {
+            if (rule() === '1up') {
+                return 'allow'
+        }
+    }
+    }
+}
+}
+}
+    
 
 }
 }

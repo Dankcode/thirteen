@@ -65,16 +65,16 @@ for (j = 0; j < arr.length; j++) {
 function mineSweep (arr) {
 if (dupeArr.length >= 4)   { 
     if(arr === 'nuclear') {
-        return 'defCon'
+        dupeArr.splice(4)
+        return dupeArr;
     } else {
         dupeArr.shift()
         mineSweep(findBomb(dupeArr));
     }
-}
+} 
 }
 
 mineSweep(findBomb(dupeArr))
-dupeArr.splice(4)
 console.log(dupeArr)
 
 return dupeArr;
