@@ -1,7 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import deck from './Deck/Deck.js';
-import bombCheck from './Bomb.js';
-const socket  = require('../connections/socket').socket
+
 
 
 /*
@@ -92,8 +89,21 @@ if (isTurn === true) {
         //must find length first
         // must find suit and then number and ONLY allow to select playable cards
 // empty board
-if (pairs < 1) {
-    return 'allow'
+if (pairs === 0) {
+    //for chains
+    if (selectedPairs >= 1 && rankSelected[0] !== rankSelected[1]){
+        if (rule() === '1up') {
+            return 'allow'
+        }
+    }
+    // pairs
+    if (rank === rankSelected[0]) {
+        return 'allow'
+    }
+    // singles
+    if (selectedPairs === 0) {
+        return 'allow'
+    }
 }
 
 // SINGLES 
