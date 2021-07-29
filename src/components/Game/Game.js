@@ -15,9 +15,9 @@ class Game extends React.Component {
 
     state = {
         roomId: '',
+        roomStarted: false,
         newGame: false,
         render: false,
-        firstJoin: false,
         bombTrue: false,
         isTurn: false,
         player: '',
@@ -39,6 +39,7 @@ class Game extends React.Component {
         playedOnline: [],
         currentTurn: '',
         curRound: ['player1', 'player2', 'player3', 'player4'],
+        count: 0,
     }
    
     componentDidMount() {        
@@ -56,15 +57,21 @@ socket.on('updateGameState', move => {
     p4Online: move.p4,
     playedCard: move.playedOnline,
     currentTurn: move.turn,
-    currentRound: move.currentRound,
-    currentWinners: move.currentWinners,
+    curRound: move.currentRound,
+    winRank: move.currentWinners,
     passRank: move.currentPassed,
+    roomStarted: move.roomStarted,
     })
+    if (this.state.winRank.length === 3) {
+        this.playAgain()
+    }
+    console.log(this.state.winRank)
+    console.log(this.state.currentTurn)
+    console.log(this.state.curRound)
 })
 }
 
 playDeck = () => {
-    if (this.state.firstJoin === false) {
     const shuffledDeck = shuffleArray(deck)
     
         //const player1Deck = shuffledDeck.splice(0, 13)
@@ -76,27 +83,32 @@ playDeck = () => {
     const player2Deck = ['4a',]
     const player3Deck = ['5a',]
     const player4Deck = ['6a',]
+
+
     socket.emit('new move', {
         gameId: this.state.roomId,
+        roomStarted: true,
         p1: player1Deck,
         p2: player2Deck,
         p3: player3Deck,
         p4: player4Deck,
         playedOnline: this.state.playedCard,
+        currentRound: ['player1', 'player2', 'player3', 'player4'],
+        currentWinners: [],
         currentPassed: [],
     })  
-    }
 }
 joinRoom = () => {
-    socket.emit('new move', {
-        gameId: this.state.roomId,
-        p1: this.state.p1Online,
-        p2: this.state.p1Online,
-        p3: this.state.p1Online,
-        p4: this.state.p1Online,
-        playedOnline: this.state.playedCard,
-        currentPassed: this.state.passRank,
-    })  
+    if (this.state.roomStarted === false) {
+        return (
+            <div>
+                <button onClick = {() => this.playDeck()}>START ROOM</button>
+            </div>
+        )
+    }
+    if (this.state.roomStarted === true) {
+        console.log('true')
+}
 }
 
 p1Seat = () => {
@@ -340,6 +352,7 @@ otherDeck = () => {
     )
     }
 }
+/*
 changeSeat = () => {
     
     if (this.state.selectArr.length > 0) {
@@ -351,6 +364,7 @@ this.state.pHand.push(quit)
     })
     }
 }
+*/
 // GAME LOGIC GOES HERE
 // =====================================
 checkCard = (selected_card) => {
@@ -411,7 +425,7 @@ turnFunction = () => {
     // set the turn to the next player
     const players = this.state.curRound
     const player = this.state.currentTurn
-    var i;
+        var i;
         for (i = 0; i < players.length; i ++) {
                 if (player === players[i]) {
                     return players[i + 1]
@@ -451,6 +465,26 @@ playAgain = () => {
         const player3Deck = shuffledDeck.splice(0, 13)
         const player4Deck = shuffledDeck.splice(0, 13)
 
+    if (this.state.player === 'player1') {
+    this.setState({
+        pHand: player1Deck.sort()
+    })
+    }   
+    if (this.state.player === 'player2') {
+    this.setState({
+        pHand: player2Deck.sort()
+    })
+    }   
+    if (this.state.player === 'player3') {
+    this.setState({
+        pHand: player3Deck.sort()
+    })
+    }   
+    if (this.state.player === 'player4') {
+    this.setState({
+        pHand: player4Deck.sort()
+    })
+    }       
     socket.emit('new move', { 
             gameId: this.state.roomId,
             playedOnline: [],
@@ -458,12 +492,14 @@ playAgain = () => {
             p2: player2Deck,
             p3: player3Deck,
             p4: player4Deck,
-            turn: this.state.curRound[0],
+            turn: this.state.winRank[0],
             currentRound: ['player1', 'player2', 'player3', 'player4'],
-            currentWinners: this.state.winRank,
-            currentPassed: this.state.passRank,
+            currentWinners: [],
+            currentPassed: [],
         })
+    this.state.winArray.push(this.state.winRank[0])    
 }
+
 
 playFunction = (selectedArray) => {
     //filter out duplicates clicked and puts them on board
@@ -501,12 +537,10 @@ playFunction = (selectedArray) => {
                 currentRound: this.currentRoundFunction(),
                 currentWinners: this.state.winRank,
                 currentPassed: this.state.passRank,
-            })
+            }, console.log(this.state.winRank))
         }
 
-        if (this.state.winRank.length === 3) {
-            this.playAgain()
-        }
+        
 }
 
 passFunction = () => {
@@ -590,6 +624,19 @@ passButton = () => {
         </div>
     )
 }
+winCountHandler = (player) => {
+    if (this.state.winRank[0] === player) {    
+        return this.state.count+1
+    }
+}
+winCount = (player) => {
+    return (
+        <div className = 'win-counter'>
+            Wins: {this.winCountHandler(player)}
+            Points: 
+        </div>
+    )
+}
 
 render() {
     return(
@@ -598,7 +645,7 @@ render() {
             {this.otherDeck()}
             </div>
                 <div className='Square'>
-                <button onClick={() => this.playDeck()}> DECK</button>
+                {this.joinRoom()}
                 <div>
                 {this.state.playedCard.map((item, i) => (
                                 <img
@@ -653,6 +700,12 @@ render() {
             <button onClick={() => this.p2Seat()}> Player 2 </button>
             <button onClick={() => this.p3Seat()}> Player 3 </button>
             <button onClick={() => this.p4Seat()}> Player 4 </button>
+</div>
+<div>
+    {this.winCount('player1')}
+    {this.winCount('player2')}
+    {this.winCount('player3')}
+    {this.winCount('player4')}
 </div>
 </React.Fragment> 
             
