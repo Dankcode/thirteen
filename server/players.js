@@ -22,25 +22,24 @@
      gamesInSession.push(gameSocket)
 
      gameSocket.on("new move", newMove)
+     gameSocket.on("new profile", newBuy)
+     gameSocket.on("new item", shopItem)
  
      // Run code when the client disconnects from their socket session. 
      gameSocket.on("disconnect", onDisconnect)
  
      // Sends new move to the other socket session in the same room. 
      gameSocket.on("updateGameState", newMove)
- 
+     gameSocket.on("updateProfile", newBuy)
+     gameSocket.on("updateItem", newBuy)
+
      gameSocket.on("createNewGame", createNewGame)
  
      // User joins gameRoom after going to a URL with '/game/:gameId' 
      gameSocket.on("playerJoinGame", playerJoinsGame)
- 
-    // gameSocket.on('request username', requestUserName)
- 
-     //gameSocket.on('recieved userName', recievedUserName)
- 
+     gameSocket.on("select seat", playerJoinsGame)
     
  }
- 
 function playerJoinsGame(idData) {
     var sock = this
      /*
@@ -48,13 +47,34 @@ function playerJoinsGame(idData) {
          this.emit('status' , console.log('no room'));
          return
      }
-     else {
     */
+     if (idData.gameId === undefined) {
+        this.emit('status' , "This game session does not exist." );
+        return
+    }
     idData.mySocketId = sock.id;
-        
-    sock.join(idData.gameId);
+    if (io.sockets.adapter.rooms.get(idData.gameId).size < 2) {
+        // attach the socket id to the data object.
+        idData.mySocketId = sock.id;
 
-    io.sockets.to(idData.gameId).emit('playerJoinedRoom', idData);
+        // Join the room
+        sock.join(idData.gameId);
+
+        console.log(io.sockets.adapter.rooms.get(idData.gameId).size)
+        var numbers = io.sockets.adapter.rooms.get(idData.gameId).size
+
+        if (io.sockets.adapter.rooms.get(idData.gameId).size === 2) {
+            // start seat selection
+            io.sockets.in(idData.gameId).emit('Start', numbers)
+        }
+
+        // Emit an event notifying the clients that the player has joined the room.
+        io.sockets.in(idData.gameId).emit('playerJoinedRoom', idData);
+
+    } else {
+        // Otherwise, send an error message back to the player.
+        this.emit('status' , "There are already 2 people playing in this room." );
+    }
 
 }
 
@@ -71,20 +91,23 @@ function newMove(move) {
      
     io.to(gameId).emit('updateGameState', move, console.log(move));
 }
+
+function newBuy(points) {
+     
+    const gameId = points.gameId 
+     
+    io.to(gameId).emit('updateProfile', points, console.log(points));
+}
+function shopItem (shop) {
+     
+    const gameId = shop.gameId 
+     
+    io.to(gameId).emit('updateItem', shop, console.log(shop));
+}
  
 function onDisconnect() {
      var i = gamesInSession.indexOf(gameSocket);
      gamesInSession.splice(i, 1);
 }
  
- /*
- function requestUserName(gameId) {
-     io.to(gameId).emit('give userName', this.id);
- }
- 
- function recievedUserName(data) {
-     data.socketId = this.id
-     io.to(data.gameId).emit('get Opponent UserName', data);
- }
- */
  exports.initializeGame = initializeGame
