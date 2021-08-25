@@ -1,12 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import deck from './Deck/Deck.js';
-import CreateNewGame from '../Join/CreateNewGame';
-import { Redirect, useParams } from 'react-router-dom';
-import queryString from 'query-string'
+import {useParams } from 'react-router-dom';
 import shuffleArray from './Deck/Shuffle';
-import io, { Socket } from 'socket.io-client'
 import './Game.css';
-import reactDom from 'react-dom';
 import gameLogic from './Gamelogic.js';
 import bombCheck from './Bomb.js';
 import counter from './Counter.js';
@@ -25,20 +21,12 @@ class Game extends React.Component {
         musicFunction: false,
         player: '',
         numberOfPlayersJoined: 0,
-        p1SeatTaken: false,
-        p2SeatTaken: false,
-        p3SeatTaken: false,
-        p4SeatTaken: false,
         shopMenuOpen:false,
         p1Profile: 'empty',
         p2Profile: 'empty',
         p3Profile: 'empty',
         p4Profile: 'empty',
         currentBackgroundId: 'Square',
-        p1Hand: [],
-        p2Hand: [],
-        p3Hand: [],
-        p4Hand: [],
         pHand: [],
         selectArr: [],
         playedCard: [],
@@ -70,10 +58,9 @@ socket.on('playerJoinedRoom', gameId => {
     })
 })
 socket.on('Start', (numberOfPlayersJoined) => {
-    console.log(numberOfPlayersJoined)
-    if (numberOfPlayersJoined === 2) {
+    //console.log(numberOfPlayersJoined)
+    if (numberOfPlayersJoined === 4) {
         // start game
-        console.log('start') 
         this.playDeck()
     } else {
         console.log('waiting for more players')
@@ -96,6 +83,39 @@ socket.on('updateGameState', move => {
     if (this.state.winRank.length === 3) {
         this.playAgain();
     }
+    else {
+    // if no one else can top currently played card(s)
+    const newRound = ['player1', 'player2', 'player3', 'player4']
+    if (this.state.curRound.length === 1 && this.state.winRank !== 3) {
+        socket.emit('new move', { 
+            gameId: this.state.roomId,
+            playedOnline: [],
+            p1: this.state.p1Online,
+            p2: this.state.p2Online,
+            p3: this.state.p3Online,
+            p4: this.state.p4Online,
+            turn: this.state.curRound[0],
+            currentRound: this.currentRoundFunction(newRound),
+            currentWinners: this.state.winRank,
+            currentPassed: [],
+        })
+    }
+    bombCheck(this.state.pHand)
+    if (this.state.selectArr.length === 0) {
+        if (bombCheck(this.state.pHand).length >= 4) {
+            this.setState({
+                bombTrue: true,
+                bombArr: bombCheck(this.state.pHand)
+            })
+        }
+        if (bombCheck(this.state.pHand).length < 4) {
+            this.setState({
+                bombTrue: false,
+                bombArr: []
+            })
+        }
+    }
+}
 })
 socket.on('updateProfile', points => {
     this.setState({
@@ -117,22 +137,29 @@ socket.on('updateItem', shop => {
         p4Profile: shop.p4Profile,
     })
 })
-}
-selectSeat = () => {
+socket.on('status', statusUpdate => {
+    alert(statusUpdate)
+    if (statusUpdate === 'This game session does not exist.' || statusUpdate === 'There are already 4 people playing in this room.') {
+       return window.location.href = "http://localhost:3000/"
+    }
+})
 }
 playDeck = () => {
     const shuffledDeck = shuffleArray(deck)
     
-        //const player1Deck = shuffledDeck.splice(0, 13)
-        //const player2Deck = shuffledDeck.splice(0, 13)
-        //const player3Deck = shuffledDeck.splice(0, 13)
-        //const player4Deck = shuffledDeck.splice(0, 13)
+        const player1Deck = shuffledDeck.splice(0, 13)
+        const player2Deck = shuffledDeck.splice(0, 13)
+        const player3Deck = shuffledDeck.splice(0, 13)
+        const player4Deck = shuffledDeck.splice(0, 13)
+    //bomb test
 
-    //const player1Deck = ['3a','3d', '4a', '4d','5a','5d','6a','6d','7a','7d', '8a','8d']
-    const player1Deck = ['3a','3d', ]
-    const player2Deck = ['4a',]
-    const player3Deck = ['5a',]
-    const player4Deck = ['6a',]
+    //const player2Deck = ['3a','3d', '4a', '4d','5a','5d','6a','6d','7a','7d', '8a','8d']
+
+    //turn test 
+    //const player1Deck = ['3a','3d', 'aa']
+    //const player2Deck = ['4a',]
+    //const player3Deck = ['5a',]
+    //const player4Deck = ['6a',]
 
 
     socket.emit('new move', {
@@ -164,8 +191,11 @@ joinRoom = () => {
     if (this.state.roomStarted === false) {
         return (
             <div className ='waiting-room'>
-                Game begin after everyone has joined 
-                <p>share this link to invite your friends</p>
+                <div className ='wait-instruction'>
+                    <p>Game begins after everyone has joined</p>
+                    <p>share this link to invite your friends</p>
+                </div>
+                 <input className='link' type='text' defaultValue={window.location.href}/>
             </div>
         )
     }
@@ -271,7 +301,7 @@ otherDeck = () => {
                     <p>Points: {this.state.p2Points}</p>
                     <p>player 2</p>
                         <div>
-                            <img src={require(`./Assets/${this.state.p2Profile}.jpg`).default} alt="Logo" />
+                            <img src={require(`./Assets/${this.state.p2Profile}.png`).default} alt="Logo" />
                         </div>
                 </div>                
             </div>
@@ -289,7 +319,7 @@ otherDeck = () => {
                 <p>Points: {this.state.p3Points}</p>
                 <p>player 3</p>
                 <div>
-                    <img src={require(`./Assets/${this.state.p3Profile}.jpg`).default} alt="Logo" />
+                    <img src={require(`./Assets/${this.state.p3Profile}.png`).default} alt="Logo" />
                 </div>
             </div>                    
             </div>
@@ -307,7 +337,7 @@ otherDeck = () => {
             <p>Points: {this.state.p4Points}</p>
             <p>player 4</p>
             <div>
-            <img src={require(`./Assets/${this.state.p4Profile}.jpg`).default} alt="Logo" />
+            <img src={require(`./Assets/${this.state.p4Profile}.png`).default} alt="Logo" />
             </div>
             </div>                    
             </div>
@@ -330,7 +360,7 @@ otherDeck = () => {
                 <p>Points: {this.state.p3Points}</p>
                 <p>player 3</p>
                 <div>
-                    <img src={require(`./Assets/${this.state.p3Profile}.jpg`).default} alt="Logo" />
+                    <img src={require(`./Assets/${this.state.p3Profile}.png`).default} alt="Logo" />
                 </div>
             </div>    
             </div>
@@ -348,7 +378,7 @@ otherDeck = () => {
             <p>Points: {this.state.p4Points}</p>
             <p>player 4</p>
             <div>
-            <img src={require(`./Assets/${this.state.p4Profile}.jpg`).default} alt="Logo" />
+            <img src={require(`./Assets/${this.state.p4Profile}.png`).default} alt="Logo" />
             </div>
             </div>   
             </div>
@@ -366,7 +396,7 @@ otherDeck = () => {
             <p>Points: {this.state.p1Points}</p>
             <p>player 1</p>
             <div>
-            <img src={require(`./Assets/${this.state.p1Profile}.jpg`).default} alt="Logo" />
+            <img src={require(`./Assets/${this.state.p1Profile}.png`).default} alt="Logo" />
             </div>
             </div>
             </div>
@@ -389,7 +419,7 @@ otherDeck = () => {
             <p>Points: {this.state.p4Points}</p>
             <p>player 4</p>
             <div>
-            <img src={require(`./Assets/${this.state.p4Profile}.jpg`).default} alt="Logo" />
+            <img src={require(`./Assets/${this.state.p4Profile}.png`).default} alt="Logo" />
             </div>
             </div>   
             </div>
@@ -407,7 +437,7 @@ otherDeck = () => {
             <p>Points: {this.state.p1Points}</p>
             <p>player 1</p>
             <div>
-            <img src={require(`./Assets/${this.state.p1Profile}.jpg`).default} alt="Logo" />
+            <img src={require(`./Assets/${this.state.p1Profile}.png`).default} alt="Logo" />
             </div>
             </div>
             </div>
@@ -425,7 +455,7 @@ otherDeck = () => {
                     <p>Points: {this.state.p2Points}</p>
                     <p>player 2</p>
                         <div>
-                            <img src={require(`./Assets/${this.state.p2Profile}.jpg`).default} alt="Logo" />
+                            <img src={require(`./Assets/${this.state.p2Profile}.png`).default} alt="Logo" />
                         </div>
                 </div>                         
             </div>
@@ -448,7 +478,7 @@ otherDeck = () => {
             <p>Points: {this.state.p1Points}</p>
             <p>player 1</p>
             <div>
-            <img src={require(`./Assets/${this.state.p1Profile}.jpg`).default} alt="Logo" />
+            <img src={require(`./Assets/${this.state.p1Profile}.png`).default} alt="Logo" />
             </div>
             </div>                    
             </div>
@@ -466,7 +496,7 @@ otherDeck = () => {
                     <p>Points: {this.state.p2Points}</p>
                     <p>player 2</p>
                         <div>
-                            <img src={require(`./Assets/${this.state.p2Profile}.jpg`).default} alt="Logo" />
+                            <img src={require(`./Assets/${this.state.p2Profile}.png`).default} alt="Logo" />
                         </div>
                 </div>   
             </div>
@@ -484,7 +514,7 @@ otherDeck = () => {
                 <p>Points: {this.state.p3Points}</p>
                 <p>player 3</p>
                 <div>
-                    <img src={require(`./Assets/${this.state.p3Profile}.jpg`).default} alt="Logo" />
+                    <img src={require(`./Assets/${this.state.p3Profile}.png`).default} alt="Logo" />
                 </div>
             </div>    
             </div>
@@ -501,7 +531,7 @@ otherDeck = () => {
                         this.p2Seat()
                     }
                 }
-             } className = 'seat-button' src={require(`./Assets/${this.state.p2Profile}.jpg`).default} alt="Logo" />
+             } className = 'seat-button' src={require(`./Assets/${this.state.p2Profile}.png`).default} alt="Logo" />
              <p>Player 2 Seat</p>
             </div>
             <div className = 'top-seat'>
@@ -511,7 +541,7 @@ otherDeck = () => {
                     } else {
                         this.p3Seat()
                     }
-                }} className = 'seat-button' src={require(`./Assets/${this.state.p3Profile}.jpg`).default} alt="Logo" />
+                }} className = 'seat-button' src={require(`./Assets/${this.state.p3Profile}.png`).default} alt="Logo" />
                 
              <p>Player 3 Seat</p>
             </div>
@@ -522,7 +552,7 @@ otherDeck = () => {
                     } else {
                         this.p4Seat()
                     }
-                }} className = 'seat-button' src={require(`./Assets/${this.state.p4Profile}.jpg`).default} alt="Logo" />
+                }} className = 'seat-button' src={require(`./Assets/${this.state.p4Profile}.png`).default} alt="Logo" />
              <p>Player 4 Seat</p>
             </div>
             <div className = 'bottom-seat'>
@@ -532,7 +562,7 @@ otherDeck = () => {
                     } else {
                         this.p1Seat()
                     }
-                }} className = 'seat-button' src={require(`./Assets/${this.state.p1Profile}.jpg`).default} alt="Logo" />
+                }} className = 'seat-button' src={require(`./Assets/${this.state.p1Profile}.png`).default} alt="Logo" />
              <p>Player 1 Seat</p>
             </div>
             </div>
@@ -543,28 +573,15 @@ otherDeck = () => {
 checkCard = (selected_card) => {
     if (gameLogic(selected_card, this.state.selectArr,  this.state.playedCard, this.state.pHand, this.state.bombArr, this.state.bombCheck, true) === 'allow' ) {
         this.selectCard(selected_card)
+        bombCheck(this.state.pHand)
+        bombCheck(this.state.selectArr)
     }
 }
 
 selectCard = (selected_card) => {
     if (this.state.currentTurn === this.state.player) {
     this.state.selectArr.push(selected_card);
-        console.log(selected_card)
-        bombCheck(this.state.pHand)
-    if (bombCheck(this.state.pHand).length >= 4) {
-        this.setState({
-            bombTrue: true,
-            bombArr: bombCheck(this.state.pHand)
-        })
-    }
-    if (bombCheck(this.state.pHand).length < 4) {
-        this.setState({
-            bombTrue: false,
-            bombArr: []
-        })
-    }
-    // LEGAL PLAYS GO HERE
-    //disallow 
+
         var i; //this loop moves hand to Selected Array
         for (i = 0; i < this.state.pHand.length; i ++) {
             var j;
@@ -585,7 +602,6 @@ deselectCard = (selected_card) => {
     
     if(selected_card === this.state.selectArr[this.state.selectArr.length -1]) {
     this.state.pHand.push(selected_card);
-        console.log(selected_card)
         var i;
         for (i = 0; i < this.state.selectArr.length; i ++) {
             var j;
@@ -616,8 +632,9 @@ turnFunction = () => {
             }
         }
 }
-currentRoundFunction = () => {
-    const players = this.state.curRound
+currentRoundFunction = (playerArr) => {
+    //const players = this.state.curRound
+    const players = playerArr
     const winners = this.state.winRank
     const passed = this.state.passRank
     var i;
@@ -638,50 +655,54 @@ currentRoundFunction = () => {
 }
 
 playAgain = () => {
-    const shuffledDeck = shuffleArray(deck)
+    const newDeck = [...deck]
+    const shuffledDeck = new shuffleArray(newDeck)
     
         const player1Deck = shuffledDeck.splice(0, 13)
         const player2Deck = shuffledDeck.splice(0, 13)
         const player3Deck = shuffledDeck.splice(0, 13)
         const player4Deck = shuffledDeck.splice(0, 13)
 
-    if (this.state.player === 'player1') {
-    this.setState({
-        pHand: player1Deck.sort()
-    })
-    }   
-    if (this.state.player === 'player2') {
-    this.setState({
-        pHand: player2Deck.sort()
-    })
-    }   
-    if (this.state.player === 'player3') {
-    this.setState({
-        pHand: player3Deck.sort()
-    })
-    }   
-    if (this.state.player === 'player4') {
-    this.setState({
-        pHand: player4Deck.sort()
-    })
-    }       
+    //winner from previous game starts the new game
     socket.emit('new move', { 
-            gameId: this.state.roomId,
-            playedOnline: [],
-            p1: player1Deck,
-            p2: player2Deck,
-            p3: player3Deck,
-            p4: player4Deck,
-            turn: this.state.winRank[0],
-            currentRound: ['player1', 'player2', 'player3', 'player4'],
-            currentWinners: [],
-            currentPassed: [],
+        gameId: this.state.roomId,
+        playedOnline: [],
+        p1: player1Deck,
+        p2: player2Deck,
+        p3: player3Deck,
+        p4: player4Deck,
+        turn: this.state.winRank[0],
+        currentRound: ['player1', 'player2', 'player3', 'player4'],
+        currentWinners: [],
+        currentPassed: [],
+    })
+this.state.winArray.push(this.state.winRank[0])    
+socket.on('updateGameState', move => {
+    if (this.state.player === 'player1') {
+        this.setState({
+            pHand: move.p1.sort()
         })
-    this.state.winArray.push(this.state.winRank[0])    
+        }   
+        if (this.state.player === 'player2') {
+        this.setState({
+            pHand: move.p2.sort()
+        })
+        }   
+        if (this.state.player === 'player3') {
+        this.setState({
+            pHand: move.p3.sort()
+        })
+        }   
+        if (this.state.player === 'player4') {
+        this.setState({
+            pHand: move.p4.sort()
+        })
+        }       
+})
 }
 
 playFunction = (selectedArray) => {
-    //filter out duplicates clicked and puts them on board
+    const newRound = ['player1', 'player2', 'player3', 'player4']
     //remove from player's hand
     selectedArray = this.state.selectArr
         let uniqueCards =  selectedArray.splice(0, 13).sort()
@@ -694,7 +715,7 @@ playFunction = (selectedArray) => {
             p3: this.state.p3Online,
             p4: this.state.p4Online,
             turn: this.turnFunction(),
-            currentRound: this.currentRoundFunction(),
+            currentRound: this.currentRoundFunction(newRound),
             currentWinners: this.state.winRank,
             currentPassed: this.state.passRank,
         })
@@ -713,36 +734,30 @@ playFunction = (selectedArray) => {
                 p3: this.state.p3Online,
                 p4: this.state.p4Online,
                 turn: this.turnFunction(),
-                currentRound: this.currentRoundFunction(),
+                currentRound: this.currentRoundFunction(newRound),
                 currentWinners: this.state.winRank,
                 currentPassed: this.state.passRank,
             })
+        this.pointCountHandler();
         }        
-        
-    this.pointCountHandler();
+   
 }
 
 passFunction = () => {
     const players = this.state.curRound
     const player = this.state.player
     const passed = this.state.passRank
+    const newRound = ['player1', 'player2', 'player3', 'player4']
+/*
+    const selectedArray = this.state.selectArr
+    let uniqueCards =  selectedArray.splice(0, 13).sort()
+    this.setState({
+        pHand: uniqueCards
+    })
+    */
+    passed.push(player)
 
-    if (players.length === 1) {
-        if (this.state.curRound[0] === player) {
-            socket.emit('new move', { 
-                gameId: this.state.roomId,
-                playedOnline: [],
-                p1: this.state.p1Online,
-                p2: this.state.p2Online,
-                p3: this.state.p3Online,
-                p4: this.state.p4Online,
-                turn: this.state.passRank[0],
-                currentRound: ['player1', 'player2', 'player3', 'player4'],
-                currentWinners: this.state.winRank,
-                currentPassed: [],
-            })
-        }
-        else 
+    if (this.state.curRound.length === 0) {
         socket.emit('new move', { 
             gameId: this.state.roomId,
             playedOnline: [],
@@ -750,14 +765,17 @@ passFunction = () => {
             p2: this.state.p2Online,
             p3: this.state.p3Online,
             p4: this.state.p4Online,
-            turn: this.state.curRound[0],
-            currentRound: ['player1', 'player2', 'player3', 'player4'],
+            turn: this.state.passRank[0],
+            currentRound: this.currentRoundFunction(newRound),
             currentWinners: this.state.winRank,
             currentPassed: [],
         })
-    } else {
-        passed.push(player)
+    }
 
+
+    // noarmal pass 
+
+    if (players.length !== 1) {
         socket.emit('new move', { 
             gameId: this.state.roomId,
             playedOnline: this.state.playedCard,
@@ -766,16 +784,16 @@ passFunction = () => {
             p3: this.state.p3Online,
             p4: this.state.p4Online,
             turn: this.turnFunction(),
-            currentRound: this.currentRoundFunction(),
+            currentRound: this.currentRoundFunction(newRound),
             currentWinners: this.state.winRank,
             currentPassed: this.state.passRank,
-        })
-    }    
+        })   
+    }
 }
  
 playButton = () => {
     // checks if the card can be played specifically the bomb
-    if (this.state.selectArr.length === this.state.playedCard.length && this.state.playedCard.length > 0) {
+    if (this.state.selectArr.length === this.state.playedCard.length && this.state.playedCard.length > 0 && this.state.bombTrue === false) {
     return (
         <div  className = 'playButton'>
             <button onClick= {() => this.playFunction()}>PLAY</button>
@@ -783,7 +801,7 @@ playButton = () => {
     )
     }
     if (this.state.playedCard.length === 0) {
-        // prevent doubles from non pairs
+        // prevent doubles from being non pairs
         if (this.state.selectArr.length === 2) {
             if (this.state.selectArr[0].charAt(0) === this.state.selectArr[1].charAt(0)) {
              return (
@@ -802,15 +820,43 @@ playButton = () => {
             }
             }
     }
-    
-    if (this.state.bombTrue === true && this.state.selectArr.length === 8) {
-        if (bombCheck(this.state.selectArr).length === 4) {
+    if (this.state.bombTrue === true) {
+        if (this.state.selectArr.length >= 8 && this.state.selectArr.length % 2 === 0) {
+            if (bombCheck(this.state.selectArr).length >= 4) {
+                return (
+            <div  className = 'playButton'>
+                <button onClick= {() => this.playFunction()}>PLAY</button>
+            </div>
+                )   
+            }    
+        }
+        if (this.state.selectArr.length === this.state.playedCard.length && this.state.playedCard.length > 0 && this.state.selectArr[0] > this.state.playedCard[this.state.playedCard.length -1]) {
             return (
-        <div  className = 'playButton'>
-            <button onClick= {() => this.playFunction()}>PLAY</button>
-        </div>
-            )   
-        }    
+                <div  className = 'playButton'>
+                    <button onClick= {() => this.playFunction()}>PLAY</button>
+                </div>
+            )
+            }
+            if (this.state.playedCard.length === 0) {
+                // prevent doubles from being non pairs
+                if (this.state.selectArr.length === 2) {
+                    if (this.state.selectArr[0].charAt(0) === this.state.selectArr[1].charAt(0)) {
+                     return (
+                        <div  className = 'playButton'>
+                            <button onClick= {() => this.playFunction()}>PLAY</button>
+                        </div>
+                            )   
+                    }
+                }    else {
+                    if (this.state.selectArr.length > 0) {
+                        return (
+                            <div  className = 'playButton'>
+                                <button onClick= {() => this.playFunction()}>PLAY</button>
+                            </div>
+                        )    
+                    }
+                    }
+            } else return null 
     }
 }
 passButton = () => {
@@ -824,6 +870,24 @@ if (this.state.playedCard.length > 0 && this.state.currentTurn === this.state.pl
     return null
 }
 }
+turnAnnouncer = () => {
+    if (!this.state.currentTurn) {
+        return null
+    } 
+    if (this.state.currentTurn === this.state.player) {
+        return (
+            <div className = 'turn-accouncer'>Your turn</div>
+        )
+    }
+    else {
+        return(
+            <div className = 'turn-accouncer'>
+            {this.state.currentTurn}'s turn
+            </div>
+        ) 
+    }
+}
+
 playerStats = (player) => {
     player = this.state.player
     switch (player) {
@@ -833,7 +897,7 @@ playerStats = (player) => {
             return (
                 <div className ='player-stats'>
                     <div>
-                    <img src={require(`./Assets/${this.state.p1Profile}.jpg`).default} alt="Logo" />
+                    <img src={require(`./Assets/${this.state.p1Profile}.png`).default} alt="Logo" />
                     </div>
                     <p>You are player 1</p>
                     <p>Wins: {this.state.p1Counter}</p>
@@ -844,7 +908,7 @@ playerStats = (player) => {
             return (
                 <div className ='player-stats'>
                     <div>
-                    <img src={require(`./Assets/${this.state.p2Profile}.jpg`).default} alt="Logo" />
+                    <img src={require(`./Assets/${this.state.p2Profile}.png`).default} alt="Logo" />
                     </div>
                     <p>You are player 2</p>
                     <p>Wins: {this.state.p2Counter}</p>
@@ -855,7 +919,7 @@ playerStats = (player) => {
             return (
                 <div className ='player-stats'>
                     <div>
-                    <img src={require(`./Assets/${this.state.p3Profile}.jpg`).default} alt="Logo" />
+                    <img src={require(`./Assets/${this.state.p3Profile}.png`).default} alt="Logo" />
                     </div>
                     <p>You are player 3</p>
                     <p>Wins: {this.state.p3Counter}</p>
@@ -866,7 +930,7 @@ playerStats = (player) => {
             return (
                 <div className ='player-stats'>
                     <div>
-                    <img src={require(`./Assets/${this.state.p4Profile}.jpg`).default} alt="Logo" />
+                    <img src={require(`./Assets/${this.state.p4Profile}.png`).default} alt="Logo" />
                     </div>
                     <p>You are player 4</p>
                     <p>Wins: {this.state.p4Counter}</p>
@@ -908,6 +972,7 @@ render() {
             </div>
                 <div className='Square'>
                 {this.joinRoom()}
+                {this.turnAnnouncer()}
                 <div className ='played-cards'>
                 {this.state.playedCard.map((item, i) => (
                                 <img
@@ -956,13 +1021,11 @@ render() {
                 
                 :             
                 <div className = 'introduction'>
-                    <p>Game will begin when seats are full,</p> <p>click an empty seat to join as that player. Turns will go counter clockwise.</p>
+                    <p>Game will begin when seats are full.</p> <p>Click an empty seat to join as that player.</p> <p>Turns will go counter clockwise.</p>
                 </div>
                 }
             </React.Fragment>
 <div>
-
-
 
 </div>
 </React.Fragment> 
@@ -972,17 +1035,19 @@ render() {
     }
 }
 
-const JoinGame = (gameid, admin) => {
+
+const GameRoom = () => {
+    
+function JoinGame () {
     const data = {
         gameId : gameid,
-        admin: admin
     }
-    socket.emit("playerJoinGame", data, console.log(data))
+    socket.emit("playerJoinGame", data)
 }
+const { gameid } = useParams()
 
-const GameRoom = (props) => {
-    const { gameid } = useParams()
-    JoinGame(gameid, props.admin)
+    JoinGame(gameid)
+
     return(
         <div>
             <h1>

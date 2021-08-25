@@ -1,0 +1,65 @@
+.heading {
+  text-align: center;
+  color: #ffffff;
+  font-size: 40px;
+}
+.JoinInnerContainer {
+  margin-top: 3%;
+  margin-left: 20%;
+}
+.JoinOuterContainer > h2 {
+  font-size: 18px;
+  color: #ffffff;
+  text-align: center;
+}
+h2 {
+  color: #ffffff;
+}
+h4 {
+  color: #ffffff;
+  margin-left: 5%;
+}
+.disclaimer {
+  color: #ffffff;
+  margin-left: 5%;
+}
+.create-room {
+  width: 20%;
+  height: auto;
+  font-size: 25px;
+  padding: 10px;
+  margin-left: 27%;
+  text-align: center;
+}
+.create-room:active {
+  background-color: grey;
+  width: 20%;
+  height: auto;
+  font-size: 25px;
+  padding: 10px;
+  margin-left: 27%;
+  text-align: center;
+}
+.create-room:hover {
+  background-color: rgb(212, 212, 212);
+  width: 20%;
+  height: auto;
+  font-size: 25px;
+  padding: 10px;
+  margin-left: 27%;
+  text-align: center;
+}
+.updates {
+  resize: none;
+  overflow: auto;
+  width: 50%;
+  margin-left: 10%;
+}
+.home-link {
+  color: #ffffff;
+  font-size: 12px;
+  text-align: center;
+}
+a {
+  color: #ffffff;
+}

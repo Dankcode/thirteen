@@ -1,9 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import deck from './Deck/Deck.js';
-const socket  = require('../connections/socket').socket
-
 export default function bombCheck (playerHand) {
-    const suitHand = playerHand.map(i => i.charAt(1)) 
+    //const suitHand = playerHand.map(i => i.charAt(1)) 
     const rankHand = playerHand.map(i => i.charAt(0))  
 
 const findDupes = (arr) => {
@@ -65,7 +61,7 @@ for (j = 0; j < arr.length; j++) {
 function mineSweep (arr) {
 if (dupeArr.length >= 4)   { 
     if(arr === 'nuclear') {
-        dupeArr.splice(4)
+        dupeArr.splice(6)
         return dupeArr;
     } else {
         dupeArr.shift()
@@ -75,7 +71,7 @@ if (dupeArr.length >= 4)   {
 }
 
 mineSweep(findBomb(dupeArr))
-console.log(dupeArr)
+//console.log(dupeArr)
 
 return dupeArr;
 }

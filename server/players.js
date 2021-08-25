@@ -19,7 +19,7 @@
      gameSocket = socket 
  
      // pushes this socket to an array which stores all the active sockets.
-     gamesInSession.push(gameSocket)
+    // gamesInSession.push(gameSocket)
 
      gameSocket.on("new move", newMove)
      gameSocket.on("new profile", newBuy)
@@ -42,28 +42,23 @@
  }
 function playerJoinsGame(idData) {
     var sock = this
-     /*
-     if (gamesInSession.map(i => i) !== idData.gameId) {
-         this.emit('status' , console.log('no room'));
-         return
-     }
-    */
-     if (idData.gameId === undefined) {
-        this.emit('status' , "This game session does not exist." );
-        return
-    }
+
+    //console.log(gamesInSession)
+    //console.log(idData.gameId)
     idData.mySocketId = sock.id;
-    if (io.sockets.adapter.rooms.get(idData.gameId).size < 2) {
-        // attach the socket id to the data object.
-        idData.mySocketId = sock.id;
+
+    if (gamesInSession.find(i => i === idData.gameId)) {
+
+    if (io.sockets.adapter.rooms.get(sock.id).size < 4) {
 
         // Join the room
         sock.join(idData.gameId);
-
-        console.log(io.sockets.adapter.rooms.get(idData.gameId).size)
+       
         var numbers = io.sockets.adapter.rooms.get(idData.gameId).size
 
-        if (io.sockets.adapter.rooms.get(idData.gameId).size === 2) {
+        //console.log(numbers)
+
+        if (numbers === 4) {
             // start seat selection
             io.sockets.in(idData.gameId).emit('Start', numbers)
         }
@@ -71,16 +66,19 @@ function playerJoinsGame(idData) {
         // Emit an event notifying the clients that the player has joined the room.
         io.sockets.in(idData.gameId).emit('playerJoinedRoom', idData);
 
-    } else {
+    } if (io.sockets.adapter.rooms.get(idData.gameId).size > 4) {
         // Otherwise, send an error message back to the player.
-        this.emit('status' , "There are already 2 people playing in this room." );
+        this.emit('status' , 'There are already 4 people playing in this room.' );
     }
-
+} else {
+        this.emit('status' , 'This game session does not exist.' );
+}
 }
 
  
 function createNewGame(gameId) {
     this.emit('createNewGame', {gameId: gameId, mySocketId: this.id});
+    gamesInSession.push(gameId)
     this.join(gameId)
 }
  
@@ -89,20 +87,23 @@ function newMove(move) {
      
     const gameId = move.gameId 
      
-    io.to(gameId).emit('updateGameState', move, console.log(move));
+    io.to(gameId).emit('updateGameState', move);
+    //console.log(move)
 }
 
 function newBuy(points) {
      
     const gameId = points.gameId 
      
-    io.to(gameId).emit('updateProfile', points, console.log(points));
+    io.to(gameId).emit('updateProfile', points);
+    //console.log(points)
 }
 function shopItem (shop) {
      
     const gameId = shop.gameId 
      
-    io.to(gameId).emit('updateItem', shop, console.log(shop));
+    io.to(gameId).emit('updateItem', shop);
+    //console.log(shop)
 }
  
 function onDisconnect() {

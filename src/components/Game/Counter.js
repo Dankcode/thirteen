@@ -1,4 +1,3 @@
-import React from 'react';
 const socket  = require('../connections/socket').socket
 
 export default function counter (winRank, roomId, p1Counter, p2Counter, p3Counter, p4Counter, p1Points, p2Points, p3Points, p4Points) {

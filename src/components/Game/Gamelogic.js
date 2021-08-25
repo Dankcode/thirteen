@@ -13,10 +13,10 @@ export default function gameLogic (selectedCard, selectedArr,  playedArr, player
     const selectedPairs = selectedArr.length
     const suitPlayed = playedArr.map(i => i.charAt(1))
     const rankPlayed = playedArr.map(i => i.charAt(0))
-    const suitSelected = selectedArr.map(i => i.charAt(1))
+    //const suitSelected = selectedArr.map(i => i.charAt(1))
     const rankSelected = selectedArr.map(i => i.charAt(0))
-    const suitHand = playerHand.map(i => i.charAt(1)) 
-    const rankHand = playerHand.map(i => i.charAt(0))  
+    //const suitHand = playerHand.map(i => i.charAt(1)) 
+    //const rankHand = playerHand.map(i => i.charAt(0))  
     const suit = selectedCard.charAt(1)
     const rank = selectedCard.charAt(0)
 function rule () {

@@ -24,76 +24,60 @@ function buyFunction (cost) {
 //p1 function
 function p1ItemFunction (item) {
     if (item === 'profileChange1') {
-        console.log('change')
         return p1ProfileChange1();
     }
     if (item === 'profileChange2') {
-        console.log('change')
         return p1ProfileChange2();
     }
     if (item === 'profileChange3') {
-        console.log('change')
         return p1ProfileChange3();
     }
     if (item === 'backgroundChange1') {
-        console.log('change')
         return backgroundChange1();
     }
 }
 //p2 function 
 function p2ItemFunction (item) {
     if (item === 'profileChange1') {
-        console.log('change')
         return p2ProfileChange1();
     }
     if (item === 'profileChange2') {
-        console.log('change')
         return p2ProfileChange2();
     }
     if (item === 'profileChange3') {
-        console.log('change')
         return p2ProfileChange3();
     }
     if (item === 'backgroundChange1') {
-        console.log('change')
         return backgroundChange1();
     }
 }
 //p3 function 
 function p3ItemFunction (item) {
     if (item === 'profileChange1') {
-        console.log('change')
         return p3ProfileChange1();
     }
     if (item === 'profileChange2') {
-        console.log('change')
         return p3ProfileChange2();
     }
     if (item === 'profileChange3') {
-        console.log('change')
         return p3ProfileChange3();
     }
     if (item === 'backgroundChange1') {
-        console.log('change')
         return backgroundChange1();
     }
 }
 //p4 function 
 function p4ItemFunction (item) {
     if (item === 'profileChange1') {
-        console.log('change')
         return p4ProfileChange1();
     }
     if (item === 'profileChange2') {
-        console.log('change')
         return p4ProfileChange2();
     }
     if (item === 'profileChange3') {
-        console.log('change')
         return p4ProfileChange3();
     }
     if (item === 'backgroundChange1') {
-        console.log('change')
         return backgroundChange1();
     }
 }
@@ -304,17 +288,17 @@ return (
         <p>Change your profile picture with points</p>
         <li className ='shop-list'>
             <div className = 'shop-item'>
-                <img src={require(`./Assets/player1.jpg`).default} alt="Logo" className = 'item'/>
+                <img src={require(`./Assets/player1.png`).default} alt="Logo" className = 'item'/>
                 <div className = 'buy-button'> 
                 <p>300 points</p>
-                {buyButton(100, 'profileChange1')}
+                {buyButton(300, 'profileChange1')}
             </div>
             </div>
 
         </li>
         <li className ='shop-list'>
             <div className = 'shop-item'>
-                <img src={require(`./Assets/player2.jpg`).default} alt="Logo" className = 'item'/>
+                <img src={require(`./Assets/player2.png`).default} alt="Logo" className = 'item'/>
                 <div className = 'buy-button'> 
             <p>300 points</p>
                 {buyButton(300, 'profileChange2')}
@@ -324,7 +308,7 @@ return (
         </li>
         <li className ='shop-list'>
             <div className = 'shop-item'>
-                <img src={require(`./Assets/player3.jpg`).default} alt="Logo" className = 'item'/>
+                <img src={require(`./Assets/player3.png`).default} alt="Logo" className = 'item'/>
                 <div className = 'buy-button'> 
             <p>300 points</p>
                 {buyButton(300, 'profileChange3')}

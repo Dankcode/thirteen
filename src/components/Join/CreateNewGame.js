@@ -36,9 +36,7 @@ class CreateNewGame extends React.Component {
                 :
             
             <div>
-                <button className="button" type="submit"  onClick = {this.Linkgen}>Create Room</button>
-                
-                
+                <button className="create-room" type="submit"  onClick = {this.Linkgen}>Create Room</button>
             </div>
             }
             </React.Fragment>
