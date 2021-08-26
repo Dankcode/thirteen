@@ -87,7 +87,7 @@ function newMove(move) {
      
     const gameId = move.gameId 
      
-    io.to(gameId).emit('updateGameState', move);
+    io.to(gameId).emit('updateGameState', move, console.log(move));
     //console.log(move)
 }
 

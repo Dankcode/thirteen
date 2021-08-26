@@ -84,22 +84,11 @@ socket.on('updateGameState', move => {
         this.playAgain();
     }
     else {
-    // if no one else can top currently played card(s)
-    const newRound = ['player1', 'player2', 'player3', 'player4']
-    if (this.state.curRound.length === 1 && this.state.winRank !== 3) {
-        socket.emit('new move', { 
-            gameId: this.state.roomId,
-            playedOnline: [],
-            p1: this.state.p1Online,
-            p2: this.state.p2Online,
-            p3: this.state.p3Online,
-            p4: this.state.p4Online,
-            turn: this.state.curRound[0],
-            currentRound: this.currentRoundFunction(newRound),
-            currentWinners: this.state.winRank,
-            currentPassed: [],
-        })
+        if (this.state.p1Online.length === 0 && this.state.p2Online.length === 0 && this.state.p3Online.length === 0 && this.state.p4Online.length === 0) {
+            this.playAgain();
+        }
     }
+    // if no one else can top currently played card(s)
     bombCheck(this.state.pHand)
     if (this.state.selectArr.length === 0) {
         if (bombCheck(this.state.pHand).length >= 4) {
@@ -115,7 +104,6 @@ socket.on('updateGameState', move => {
             })
         }
     }
-}
 })
 socket.on('updateProfile', points => {
     this.setState({
@@ -633,10 +621,24 @@ turnFunction = () => {
         }
 }
 currentRoundFunction = (playerArr) => {
-    //const players = this.state.curRound
     const players = playerArr
     const winners = this.state.winRank
     const passed = this.state.passRank
+    var removeThis = winners.concat(passed)
+    var i;
+        for (i = 0; i < players.length; i ++) {
+            var j;
+                for (j = 0; j < removeThis.length;j  ++) {
+                    if (players[i] === removeThis[j]) 
+                        players.splice(i, 1);                
+                }
+            }   
+    return players
+    
+}
+newRoundFunction = (playerArr) => {
+    const players = playerArr
+    const winners = this.state.winRank
     var i;
         for (i = 0; i < players.length; i ++) {
             var j;
@@ -645,15 +647,9 @@ currentRoundFunction = (playerArr) => {
                         players.splice(i, 1);                
                 }
             }   
-        for (i = 0; i < players.length; i ++) {
-                for (j = 0; j < passed.length;j  ++) {
-                    if (players[i] === passed[j]) 
-                        players.splice(i, 1);                
-                }
-            }         
     return players
+    
 }
-
 playAgain = () => {
     const newDeck = [...deck]
     const shuffledDeck = new shuffleArray(newDeck)
@@ -744,20 +740,15 @@ playFunction = (selectedArray) => {
 }
 
 passFunction = () => {
-    const players = this.state.curRound
+    //const players = this.state.curRound
     const player = this.state.player
     const passed = this.state.passRank
     const newRound = ['player1', 'player2', 'player3', 'player4']
-/*
-    const selectedArray = this.state.selectArr
-    let uniqueCards =  selectedArray.splice(0, 13).sort()
-    this.setState({
-        pHand: uniqueCards
-    })
-    */
-    passed.push(player)
 
-    if (this.state.curRound.length === 0) {
+    passed.push(player)
+    //cur round of 0 means the player that leaded won the match and is now in the winrank array
+
+    if (this.state.curRound.length === 1) {
         socket.emit('new move', { 
             gameId: this.state.roomId,
             playedOnline: [],
@@ -766,28 +757,55 @@ passFunction = () => {
             p3: this.state.p3Online,
             p4: this.state.p4Online,
             turn: this.state.passRank[0],
-            currentRound: this.currentRoundFunction(newRound),
+            currentRound: this.newRoundFunction(newRound),
             currentWinners: this.state.winRank,
             currentPassed: [],
         })
     }
-
-
-    // noarmal pass 
-
-    if (players.length !== 1) {
-        socket.emit('new move', { 
-            gameId: this.state.roomId,
-            playedOnline: this.state.playedCard,
-            p1: this.state.p1Online,
-            p2: this.state.p2Online,
-            p3: this.state.p3Online,
-            p4: this.state.p4Online,
-            turn: this.turnFunction(),
-            currentRound: this.currentRoundFunction(newRound),
-            currentWinners: this.state.winRank,
-            currentPassed: this.state.passRank,
-        })   
+            // normal pass 
+    if (this.state.curRound.length > 2) {
+            socket.emit('new move', { 
+                gameId: this.state.roomId,
+                playedOnline: this.state.playedCard,
+                p1: this.state.p1Online,
+                p2: this.state.p2Online,
+                p3: this.state.p3Online,
+                p4: this.state.p4Online,
+                turn: this.turnFunction(),
+                currentRound: this.currentRoundFunction(this.state.curRound),
+                currentWinners: this.state.winRank,
+                currentPassed: this.state.passRank,
+            })   
+        }
+    if (this.state.curRound.length === 2) {
+        if (this.state.player === this.state.curRound[0]) {
+            socket.emit('new move', { 
+                gameId: this.state.roomId,
+                playedOnline: [],
+                p1: this.state.p1Online,
+                p2: this.state.p2Online,
+                p3: this.state.p3Online,
+                p4: this.state.p4Online,
+                turn: this.state.curRound[1],
+                currentRound: this.newRoundFunction(newRound),
+                currentWinners: this.state.winRank,
+                currentPassed: [],
+            })
+        }
+        if (this.state.player === this.state.curRound[1]) {
+            socket.emit('new move', { 
+                gameId: this.state.roomId,
+                playedOnline: [],
+                p1: this.state.p1Online,
+                p2: this.state.p2Online,
+                p3: this.state.p3Online,
+                p4: this.state.p4Online,
+                turn: this.state.curRound[0],
+                currentRound: this.newRoundFunction(newRound),
+                currentWinners: this.state.winRank,
+                currentPassed: [],
+            })
+        }
     }
 }
  
@@ -821,7 +839,7 @@ playButton = () => {
             }
     }
     if (this.state.bombTrue === true) {
-        if (this.state.selectArr.length >= 8 && this.state.selectArr.length % 2 === 0) {
+        if (this.state.selectArr.length === 8) {
             if (bombCheck(this.state.selectArr).length >= 4) {
                 return (
             <div  className = 'playButton'>
@@ -860,7 +878,8 @@ playButton = () => {
     }
 }
 passButton = () => {
-if (this.state.playedCard.length > 0 && this.state.currentTurn === this.state.player) {    
+    if (this.state.selectArr.length === 0) {
+    if (this.state.playedCard.length > 0 && this.state.currentTurn === this.state.player) {    
     return (
         <div  className = 'passButton'>
             <button onClick = {() => this.passFunction()}>PASS</button>
@@ -868,6 +887,7 @@ if (this.state.playedCard.length > 0 && this.state.currentTurn === this.state.pl
     )
 } else {
     return null
+}
 }
 }
 turnAnnouncer = () => {
