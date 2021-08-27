@@ -16,10 +16,6 @@
  
      // initialize global variables.
      io = sio 
-     gameSocket = socket 
- 
-     // pushes this socket to an array which stores all the active sockets.
-    // gamesInSession.push(gameSocket)
 
      gameSocket.on("new move", newMove)
      gameSocket.on("new profile", newBuy)
@@ -87,7 +83,7 @@ function newMove(move) {
      
     const gameId = move.gameId 
      
-    io.to(gameId).emit('updateGameState', move, console.log(move));
+    io.to(gameId).emit('updateGameState', move);
     //console.log(move)
 }
 

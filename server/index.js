@@ -7,27 +7,14 @@ const gameLogic = require('./players')
 const socketio = require('socket.io');
 const io = socketio(server, {
   cors: {
-    origin: ["http://localhost:3000"],
+    origin: ["https://secret-badlands-96001.herokuapp.com/"],
   },
 })
 
 
 
 const PORT = process.env.PORT || 8000;
-/*
-io.on('connection', (socket) => {
-  console.log('user has joined ' + socket.id);
-  
-  socket.on('join', (room, callback) => {
-    socket.join(room)
-    callback(`Joined ${room}`)
-    
-  })
 
-
-  
- })
- */
  io.on('connection', client => {
   gameLogic.initializeGame(io, client)
 })
