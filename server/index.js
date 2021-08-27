@@ -7,7 +7,7 @@ const gameLogic = require('./players')
 const socketio = require('socket.io');
 const io = socketio(server, {
   cors: {
-    origin: ["https://secret-badlands-96001.herokuapp.com/"],
+    origin: ["https://thirteen-cardgame.xyz/"],
   },
 })
 
