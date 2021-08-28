@@ -1,6 +1,6 @@
 import { io } from 'socket.io-client'
 
-const socket = io("https://secret-badlands-96001.herokuapp.com/")
+const socket = io("https://thirteen-online.herokuapp.com/")
 
 var mySocketId
 

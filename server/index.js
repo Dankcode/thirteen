@@ -7,7 +7,7 @@ const gameLogic = require('./players')
 const socketio = require('socket.io');
 const io = socketio(server, {
   cors: {
-    origin: ["https://thirteen-online-default-rtdb.firebaseio.com/"],
+    origin: ["https://thirteen-cardgame.xyz/"],
   },
 })
 
