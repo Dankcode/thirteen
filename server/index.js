@@ -7,7 +7,7 @@ const gameLogic = require('./players')
 const socketio = require('socket.io');
 const io = socketio(server, {
   cors: {
-    origin: ["https://thirteen-cardgame.xyz/"],
+    origin: ["https://thirteen-online.herokuapp.com/"],
   },
 })
 
